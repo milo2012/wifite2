@@ -138,14 +138,14 @@ class Scanner(object):
         Color.p('                      ESSID')
         if Configuration.show_bssids:
             Color.p('              BSSID')
-        Color.pl('   CH  ENCR  POWER  WPS?  CLIENT')
+        Color.pl('   CH  ENCR      POWER  WPS?  CLIENT')
 
         # Second row: separator
         Color.p('   ---')
         Color.p('  -------------------------')
         if Configuration.show_bssids:
             Color.p('  -----------------')
-        Color.pl('  ---  ----  -----  ----  ------{W}')
+        Color.pl('  ---  --------  -----  ----  ------{W}')
 
         # Remaining rows: targets
         for idx, target in enumerate(self.targets, start=1):

@@ -64,9 +64,8 @@ class Dependency(object):
     @classmethod
     def fails_dependency_check(cls):
         from ..util.color import Color
-        from ..util.process import Process
 
-        if Process.exists(cls.dependency_name):
+        if cls.exists():
             return False
 
         if cls.dependency_required:

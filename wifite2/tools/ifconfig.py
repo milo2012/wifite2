@@ -11,6 +11,11 @@ class Ifconfig(Dependency):
     dependency_url = 'apt-get install net-tools or iproute2'
 
     @classmethod
+    def exists(cls):
+        from ..util.process import Process
+        return Process.exists('ifconfig') or Process.exists('ip')
+
+    @classmethod
     def _run_command(cls, command):
         from ..util.process import Process
         pid = Process(command)

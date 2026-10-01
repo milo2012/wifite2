@@ -258,7 +258,10 @@ class Airodump(Dependency):
                 continue
             if 'WEP' in Configuration.encryption_filter and 'WEP' in target.encryption:
                 result.append(target)
-            elif 'WPA' in Configuration.encryption_filter and 'WPA' in target.encryption:
+            elif 'WPA' in Configuration.encryption_filter and \
+                    ('WPA' in target.encryption or 'WPE' in target.encryption):
+                    # Enterprise (WPE) is WPA-family: keep it under the WPA
+                    # filter so it is not silently dropped from scans.
                     result.append(target)
             elif 'WPS' in Configuration.encryption_filter and target.wps != False:
                 result.append(target)

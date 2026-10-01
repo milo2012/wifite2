@@ -17,6 +17,30 @@
 
 # Wifite2 - Automated Wireless Penetration Testing Tool
 
+> **Fork differences (this repo vs upstream):** Enterprise networks are
+> labeled separately from WPA-Personal, with observed outer EAP methods —
+> powered by a patched airodump-ng ([milo2012/aircrack-ng](https://github.com/milo2012/aircrack-ng),
+> `AUTH-EAP` column: `MGT`, `MGT+TEAP`, `MGT+PEAP`, …; the `Dockerfile`
+> builds from that fork).
+>
+> ```text
+> $ python3 Wifite2.py -i wlan1 --channel 6
+>    NUM                      ESSID   CH  ENCR      POWER  WPS?  CLIENT
+>    ---  -------------------------  ---  --------  -----  ----  ------
+>      3                      test     6  WPE+TEAP   68db    no    1
+> ```
+>
+> | ENCR | Meaning |
+> |------|---------|
+> | `WPA` | WPA-Personal (PSK) — handshake/PMKID attacks as before |
+> | `WPE` | WPA-Enterprise, outer method not yet observed (stock airodump-ng, or no EAP exchange captured) |
+> | `WPE+TLS` / `WPE+PEAP` / `WPE+TTLS` / `WPE+TEAP` | Enterprise with observed outer EAP method (patched airodump-ng) — pick tooling accordingly: EAP-TLS → hostapd-mana + portal (if validation is lax); PEAP/TTLS → eaphammer hash capture; TEAP → custom twin |
+> | `WPE+T/P`, `WPE+2`, … | Mixed-method fleet on one SSID |
+>
+> Enterprise targets are display-only: wifite2 lists and filters them (kept
+> under the `--wpa` filter) but launches no handshake attacks against them
+> (`Unable to attack: no attacks available`, skipped).
+
 [![License: GPL-2.0](https://img.shields.io/badge/License-GPL--2.0-blue.svg)](LICENSE)
 [![Python 2.7+ / 3.x](https://img.shields.io/badge/Python-2.7%2B%20%7C%203.x-brightgreen.svg)](https://www.python.org/downloads/)
 [![Kali Linux](https://img.shields.io/badge/Kali-Linux-268BEE.svg)](https://www.kali.org/)

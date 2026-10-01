@@ -6,17 +6,20 @@ ENV HASHCAT_VERSION hashcat-3.6.0
 # Install requirements
 RUN echo "deb-src http://deb.debian.org/debian jessie main" >> /etc/apt/sources.list
 RUN apt-get update && apt-get upgrade -y
-RUN apt-get install ca-certificates gcc openssl make kmod nano wget p7zip build-essential libsqlite3-dev libpcap0.8-dev libpcap-dev sqlite3 pkg-config libnl-genl-3-dev libssl-dev net-tools iw ethtool usbutils pciutils wireless-tools git curl wget unzip macchanger pyrit tshark -y
+RUN apt-get install ca-certificates gcc g++ openssl make kmod nano wget p7zip build-essential autoconf automake libtool shtool libsqlite3-dev libpcap0.8-dev libpcap-dev sqlite3 pkg-config libnl-genl-3-dev libnl-3-dev libssl-dev zlib1g-dev net-tools iw ethtool usbutils pciutils wireless-tools git curl wget unzip macchanger pyrit tshark -y
 RUN apt-get build-dep aircrack-ng -y
 
 
 
-#Install Aircrack from Source
-RUN wget http://download.aircrack-ng.org/aircrack-ng-1.2-rc4.tar.gz
-RUN tar xzvf aircrack-ng-1.2-rc4.tar.gz
-WORKDIR /aircrack-ng-1.2-rc4/
-RUN make
+#Install Aircrack from Source (AUTH-EAP patched fork: airodump-ng shows
+# outer EAP methods as MGT+TEAP/MGT+PEAP/... so wifite2 can label WPE nets)
+RUN git clone https://github.com/milo2012/aircrack-ng
+WORKDIR /aircrack-ng/
+RUN autoreconf -i
+RUN ./configure --without-opt
+RUN make -j$(nproc)
 RUN make install
+RUN ldconfig
 RUN airodump-ng-oui-update
 
 # Workdir /

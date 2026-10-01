@@ -9,6 +9,11 @@ class Iwconfig(Dependency):
     dependency_url = 'apt-get install wireless-tools or iw'
 
     @classmethod
+    def exists(cls):
+        from ..util.process import Process
+        return Process.exists('iwconfig') or Process.exists('iw')
+
+    @classmethod
     def mode(cls, iface, mode_name):
         from ..util.process import Process
 

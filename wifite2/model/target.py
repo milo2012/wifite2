@@ -36,11 +36,23 @@ class Target(object):
         self.channel    =     fields[3].strip()
 
         self.encryption =     fields[5].strip()
-        if 'WPA' in self.encryption:
+        # Enterprise detection comes from the Authentication column
+        # (field 7): PSK = personal, MGT = enterprise. A patched
+        # airodump-ng appends observed outer EAP methods, e.g.
+        # MGT, MGT+TEAP, MGT+TLS+PEAP+TEAP.
+        self.authentication = fields[7].strip() if len(fields) > 7 else ''
+        self.eap_methods = []
+        if 'MGT' in self.authentication:
+            self.encryption = 'WPE'
+            for method in ('TLS', 'TTLS', 'PEAP', 'TEAP'):
+                if '+' + method in self.authentication \
+                        or self.authentication.endswith(method):
+                    self.eap_methods.append(method)
+        elif 'WPA' in self.encryption:
             self.encryption = 'WPA'
         elif 'WEP' in self.encryption:
             self.encryption = 'WEP'
-        if len(self.encryption) > 4:
+        if len(self.encryption) > 4 and self.encryption != 'WPE':
             self.encryption = self.encryption[0:4].strip()
 
         self.power      = int(fields[8].strip())
@@ -83,6 +95,24 @@ class Target(object):
         if bssid_multicast.match(self.bssid):
             raise Exception('Ignoring target with Multicast BSSID (%s)' % self.bssid)
 
+    def encryption_tag(self):
+        '''Short ENCR-column tag, max 8 chars.
+
+        WPE           enterprise, outer method unknown (stock airodump-ng,
+                      or nothing captured yet)
+        WPE+TLS/TTLS/PEAP/TEAP  single outer method (patched airodump-ng)
+        WPE+T/P       TEAP+PEAP mix; WPE+2/3...  other multi-method fleets.
+        '''
+        if self.encryption != 'WPE':
+            return self.encryption
+        if len(self.eap_methods) == 0:
+            return 'WPE'
+        if len(self.eap_methods) == 1:
+            return 'WPE+' + self.eap_methods[0]
+        if set(self.eap_methods) == set(['TEAP', 'PEAP']):
+            return 'WPE+T/P'
+        return 'WPE+%d' % len(self.eap_methods)
+
     def to_str(self, show_bssid=False):
         '''
             *Colored* string representation of this Target.
@@ -118,9 +148,11 @@ class Target(object):
             channel_color = '{C}'
         channel = Color.s('%s%s' % (channel_color, str(self.channel).rjust(3)))
 
-        encryption = self.encryption.rjust(4)
+        encryption = self.encryption_tag().rjust(8)
         if 'WEP' in encryption:
             encryption = Color.s('{G}%s' % encryption)
+        elif 'WPE' in encryption:
+            encryption = Color.s('{P}%s' % encryption)
         elif 'WPA' in encryption:
             encryption = Color.s('{O}%s' % encryption)
 
