@@ -33,7 +33,7 @@
 > | ENCR | Meaning |
 > |------|---------|
 > | `WPA` | WPA-Personal (PSK) — handshake/PMKID attacks as before |
-> | `WPE` | WPA-Enterprise, outer method not yet observed (stock airodump-ng, or no EAP exchange captured) |
+> | `WPE` | WPA-Enterprise, outer method not yet observed: stock airodump-ng always reports plain `MGT`; the patched build does too until a parseable outer EAP handshake is captured (tiny Identity/NAK-only flights stay `WPE`) |
 > | `WPE+TLS` / `WPE+PEAP` / `WPE+TTLS` / `WPE+TEAP` | Enterprise with observed outer EAP method (patched airodump-ng) — pick tooling accordingly: EAP-TLS → hostapd-mana + portal (if validation is lax); PEAP/TTLS → eaphammer hash capture; TEAP → custom twin |
 > | `WPE+T/P`, `WPE+2`, … | Mixed-method fleet on one SSID |
 >
