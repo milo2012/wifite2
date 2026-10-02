@@ -57,5 +57,16 @@ class TestTarget(unittest.TestCase):
         assert(matches[0].encryption == 'WPA')
         assert(matches[0].eap_methods == [])
 
+    def testTTLSNotMisreadAsTLS(self):
+        ''' 'MGT+TTLS'.endswith('TLS') must not add a phantom TLS method '''
+        from wifite2.model.target import Target
+        fields = ['00:11:22:33:44:55', '2015-05-27 19:28:44',
+                  '2015-05-27 19:28:46', '6', '54', 'WPA2', 'CCMP',
+                  'MGT+TTLS', '-58', '2', '0', '0.0.0.0', '9', 'HOME-ABCD', '']
+        t = Target(fields)
+        assert(t.encryption == 'WPE')
+        assert(t.eap_methods == ['TTLS'])
+        assert(t.encryption_tag() == 'WPE+TTLS')
+
 if __name__ == '__main__':
     unittest.main()

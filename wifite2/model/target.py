@@ -45,8 +45,8 @@ class Target(object):
         if 'MGT' in self.authentication:
             self.encryption = 'WPE'
             for method in ('TLS', 'TTLS', 'PEAP', 'TEAP'):
-                if '+' + method in self.authentication \
-                        or self.authentication.endswith(method):
+                # '+'-anchored: bare endswith('TLS') also matches 'TTLS'
+                if '+' + method in self.authentication:
                     self.eap_methods.append(method)
         elif 'WPA' in self.encryption:
             self.encryption = 'WPA'
